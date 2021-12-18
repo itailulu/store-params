@@ -4,7 +4,7 @@
   "description": "Library for storing URL params",
   "main": "store-params.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "minify store-params.js > ./store-params.min.js"
   },
   "repository": {
     "type": "git",
@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/livechat/store-params/issues"
   },
-  "homepage": "https://github.com/livechat/store-params#readme"
+  "homepage": "https://github.com/livechat/store-params#readme",
+  "dependencies": {
+    "minify": "^8.0.3"
+  }
 }

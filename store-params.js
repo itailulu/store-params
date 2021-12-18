@@ -29,13 +29,13 @@
 
     // Default Settings
     self.options = {
-      storage: 'cookies',
       cookieDuration: 14,
       cookieDomain: false,
       storeUTMs: true,
       storeReferrer: true,
       include: [],
       exclude: [],
+      keyName: 'QPAR',
       callback: function() {},
     };
 
@@ -74,78 +74,25 @@
       self.options.include = self.options.include.concat(utms)
     }
 
-    switch (self.options.storage) {
-        // Define create, read, earse functions for cookie
-        case 'cookies':
-          var store = function(name,value) {
-            var days = self.options.cookieDuration
+    var localStorage = window.localStorage;
 
-            if(value=='') {
-              days = -1
-            }
+    var read = function(name) {
+      let data = JSON.parse(localStorage.getItem(self.options.keyName));
+      return typeof name !== 'undefined' ? data[name] : data;
+    }
 
-            var expires = "";
-            if (self.options.cookieDuration) {
-              var date = new Date();
-              date.setTime(date.getTime() + (days*24*60*60*1000));
-              expires = "; expires=" + date.toUTCString();
-            }
-            document.cookie = name + "=" + value + expires + ";domain=" + self.options.cookieDomain + "; path=/";
-          }
+    var store = function(name, value) {
+      let data = JSON.parse(localStorage.getItem(self.options.keyName));
+      if (typeof data !== 'object' || data == null) {
+        data = {};
+      }
+      data[name] = value;
+      localStorage.setItem(self.options.keyName, JSON.stringify(data));
+    }
 
-          var read = function(name) {
-            var nameEQ = name + "=";
-            var ca = document.cookie.split(';');
-            for(var i=0;i < ca.length;i++) {
-              var c = ca[i];
-              while (c.charAt(0)==' ') c = c.substring(1,c.length);
-              if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-            }
-            return null;
-          }
-
-          var erase = function(name) {
-            store(name,"");
-          } 
-
-          break;
-        // Define create, read, earse functions for localStorage
-        case 'localStorage':
-          var localStorage = window.localStorage;
-
-          var store = function(name, value) {
-            localStorage.setItem(name, value)
-          }
-
-          var read = function(name) {
-            return localStorage.getItem(name);
-          }
-
-          var erase = function(name) {
-            localStorage.removeItem(name)
-          }
-
-          break;
-        // Define create, read, earse functions for sessionStorage
-        case 'sessionStorage':
-         var sessionStorage = window.localStorage;
-
-          var store = function(name, value) {
-            sessionStorage.setItem(name, value)
-          }
-
-          var read = function(name) {
-            return sessionStorage.getItem(name);
-          }
-
-          var erase = function(name) {
-            sessionStorage.removeItem(name)
-          }
-
-          break;
-        default: 
-          break;
-    }  
+    var erase = function(name) {
+      localStorage.removeItem(self.options.keyName)
+    }
 
     var init = function() {
       // store UTMs
